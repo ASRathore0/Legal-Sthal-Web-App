@@ -9,15 +9,15 @@ const testimonials = [
   },
   {
     quote: 'Excellent guidance and transparent pricing. The consultants were responsive and helped me choose the right structure for my business.',
-    name: 'Meera Iyer',
-    role: 'Co-founder, GreenLeaf',
-    img: 'https://images.unsplash.com/photo-1531123414780-f3b2a8a1a5d6?auto=format&fit=crop&w=256&q=80'
+    name: 'Rishu Rai',
+    role: 'Founder, GenSky Tech',
+    img: 'https://genskytech.com/assets/images/team/team-image1.jpg'
   },
   {
     quote: 'Fast, clear, and reliable. The process was completely online and saved us both time and money — highly recommended.',
-    name: 'Anjali Desai',
-    role: 'CEO, CraftHive',
-    img: 'https://images.unsplash.com/photo-1545996124-1b9b6f0f7f15?auto=format&fit=crop&w=256&q=80'
+    name: 'Amit Singh',
+    role: 'Founder, BookingYard',
+    img: 'https://media.licdn.com/dms/image/v2/D5603AQHJ7Cyd61k8mg/profile-displayphoto-shrink_400_400/profile-displayphoto-shrink_400_400/0/1710703266461?e=1765411200&v=beta&t=bjrpaeR4DlI137zwZfBNM1sS0CMPET1OxSLunUqK1pk'
   },
   {
     quote: 'The team provided excellent post-registration support and answered all questions patiently. Great value for money.',

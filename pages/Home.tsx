@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Briefcase, Users, Rocket, CheckCircle2 } from 'lucide-react';
 import { ServiceType } from '../types';
-import AiAssistant from '../components/AiAssistant';
+// import AiAssistant from '../components/AiAssistant';
 import ServiceCard from '../components/ServiceCard';
 import TrustStrip from '../components/TrustStrip';
 import HeroInquiry from '../components/HeroInquiry';
@@ -18,18 +18,18 @@ const Home: React.FC = () => {
           <div className="md:flex md:items-start md:gap-10">
             <div className="md:w-2/3">
               <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight leading-tight mb-6">
-                <span>Legal</span> <span className="text-orange-500">स्थल</span> – Your Trusted Online Business Registration Partner
+          <span>Legal</span> <span className="text-orange-500">स्थल</span> – Your Trusted Online Business Registration Partner
               </h1>
-              <p className="text-xl text-blue-100 mb-8 max-w-2xl leading-relaxed">
-                Start, grow, and manage your business with simple, secure, and affordable legal services. We handle the paperwork so you can focus on the business.
+              <p className="text-lg text-blue-100 mb-8 max-w-2xl leading-relaxed">
+          Legal Sthal combines legal expertise and technology to deliver secure, hassle-free business compliance solutions. From launching your venture to scaling up, we handle registrations, licenses, filings, and certifications—keeping your business legally strong.
               </p>
               <div className="flex flex-wrap gap-4">
-                <Link to="/sole-proprietorship" className="bg-orange-600 text-white hover:bg-orange-700 font-bold py-3.5 px-8 rounded-lg transition-colors flex items-center gap-2 shadow-lg shadow-orange-900/20">
-                  Get Started <ArrowRight className="h-5 w-5" />
-                </Link>
-                <Link to="/contact" className="bg-transparent border-2 border-white text-white hover:bg-white/10 font-semibold py-3.5 px-8 rounded-lg transition-colors">
-                  Contact Us
-                </Link>
+          <Link to="/sole-proprietorship" className="bg-orange-600 text-white hover:bg-orange-700 font-bold py-3.5 px-8 rounded-lg transition-colors flex items-center gap-2 shadow-lg shadow-orange-900/20">
+            Get Started <ArrowRight className="h-5 w-5" />
+          </Link>
+          <Link to="/contact" className="bg-transparent border-2 border-white text-white hover:bg-white/10 font-semibold py-3.5 px-8 rounded-lg transition-colors">
+            Contact Us
+          </Link>
               </div>
             </div>
 
@@ -39,10 +39,10 @@ const Home: React.FC = () => {
           </div>
         </div>
         <TrustStrip />
-      </section>
+            </section>
 
-      {/* Services Section - Styled like provided design */}
-      <section className="relative">
+            {/* Services Section - Styled like provided design */}
+            <section className="relative">
         <div className="relative">
           <div className="h-56 sm:h-64 md:h-72 lg:h-80 w-full bg-[url('https://images.unsplash.com/photo-1507679799987-c73779587ccf?auto=format&fit=crop&w=1900&q=80')] bg-center bg-cover"></div>
           <div className="absolute inset-0 bg-blue-900/75 mix-blend-multiply"></div>
@@ -64,7 +64,7 @@ const Home: React.FC = () => {
                 { title: 'GST Filings', desc: 'GST registration & returns filing support.', icon: <CheckCircle2 className="h-6 w-6 text-orange-500" /> },
                 { title: 'Startup India & MSME', desc: 'Recognition and MSME registrations.', icon: <Rocket className="h-6 w-6 text-orange-500" /> },
                 { title: 'ISO Services', desc: 'ISO certification consulting and documentation support.', icon: <CheckCircle2 className="h-6 w-6 text-orange-500" /> },
-                { title: 'Copyright Registration', desc: 'Protect your creative works with official copyright registration.', icon: <Briefcase className="h-6 w-6 text-orange-500" /> },
+                { title: 'Compliances Services', desc: 'Ensuring. your business meets all legal and regulatory requirements.', icon: <Briefcase className="h-6 w-6 text-orange-500" /> },
                 { title: ServiceType.SOLE_PROPRIETORSHIP, desc: 'Low-compliance option for solo entrepreneurs.', icon: <Briefcase className="h-6 w-6 text-orange-500" /> }
               ].map((s, i) => (
                 <div key={i} className="text-center">
@@ -116,6 +116,57 @@ const Home: React.FC = () => {
           </div>
         </div>
       </section>
+
+      {/* Trusted Partners */}
+      <section className="relative bg-white py-14">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center max-w-3xl mx-auto mb-10">
+            <p className="text-xs font-semibold tracking-[0.25em] text-orange-600 uppercase">Partners</p>
+            <h3 className="text-3xl md:text-4xl font-bold text-blue-900 mt-3">Trusted by leading banks and platforms</h3>
+            <p className="text-gray-600 mt-3">We collaborate with financial, workspace, and tech partners so your registrations, filings, and brand protection stay seamless.</p>
+          </div>
+
+          <div className="bg-white border border-gray-100 rounded-2xl shadow-xl shadow-blue-900/5 p-6 md:p-10">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 md:gap-6">
+              {[ 'Myhq', 'ICICI Bank', 'Axis Bank', 'ZOHO', 'Pantasign', 'HDFC Bank', 'Canva', 'Gen SkyTech' ].map((partner) => (
+                <div
+                  key={partner}
+                  className="h-20 rounded-xl border border-gray-200 bg-gray-50 flex items-center justify-center text-sm md:text-base font-semibold text-blue-900 shadow-sm hover:-translate-y-1 hover:shadow-md transition"
+                >
+                  {partner}
+                </div>
+              ))}
+            </div>
+
+            <div className="mt-10 grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 text-sm text-gray-700">
+              <div className="p-5 rounded-xl border border-gray-100 bg-blue-50">
+                <p className="text-xs uppercase tracking-wide text-blue-800 font-semibold">Coverage</p>
+                <p className="mt-2 text-blue-900 font-bold text-lg">Pan-India filings</p>
+                <p className="mt-1">Registrations, licenses, and renewals across major states with centralized tracking.</p>
+              </div>
+              <div className="p-5 rounded-xl border border-gray-100 bg-orange-50">
+                <p className="text-xs uppercase tracking-wide text-orange-700 font-semibold">Reliability</p>
+                <p className="mt-2 text-blue-900 font-bold text-lg">Bank-grade process</p>
+                <p className="mt-1">Checklist-driven execution aligned with SLAs and transparent updates.</p>
+              </div>
+              <div className="p-5 rounded-xl border border-gray-100 bg-gray-50">
+                <p className="text-xs uppercase tracking-wide text-blue-700 font-semibold">Support</p>
+                <p className="mt-2 text-blue-900 font-bold text-lg">Dedicated desk</p>
+                <p className="mt-1">Single point of contact for filings, follow-ups, and escalations.</p>
+              </div>
+            </div>
+
+            <div className="mt-8 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+              <p className="text-gray-700 text-base">Want to explore a partnership model for your customers or network?</p>
+              <div className="flex flex-wrap gap-3">
+                <Link to="/contact" className="bg-blue-900 hover:bg-blue-800 text-white text-sm font-semibold px-4 py-2 rounded-lg shadow-sm transition-colors">Partner with us</Link>
+                {/* <a href="tel:+916204270990 " className="text-sm font-semibold text-blue-900 hover:text-orange-600">+91 6204270990 </a> */}
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <Testimonials />
 
       {/* Visit Us / Contact Preview */}
@@ -162,7 +213,7 @@ const Home: React.FC = () => {
         </div>
       </section>
 
-      <AiAssistant context="General Business Registration queries" />
+      {/* <AiAssistant context="General Business Registration queries" /> */}
     </div>
   );
 };

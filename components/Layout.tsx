@@ -3,10 +3,19 @@ import { Link, useLocation } from 'react-router-dom';
 import { NavItem } from '../types';
 import { Menu, X, Shield, Scale, Phone, Mail, MapPin, ChevronDown } from 'lucide-react';
 
-const startBusinessItems: NavItem[] = [
+// quick list removed — desktop/mobile now use left/right company lists directly
+
+const startBusinessCompaniesLeft: NavItem[] = [
+  { label: 'Private Limited Company', path: '/private-limited-company' },
+  { label: 'One Person Company', path: '/one-person-company' },
+  { label: 'Limited Liability Partnership', path: '/limited-liability-partnership' },
+  { label: 'Startup India', path: '/startup-india-registration' },
+];
+
+const startBusinessCompaniesRight: NavItem[] = [
   { label: 'Sole Proprietorship', path: '/sole-proprietorship' },
   { label: 'Partnership', path: '/partnership-registration' },
-  { label: 'Startup India', path: '/startup-india-registration' },
+  { label: 'Public Limited Company', path: '/public-limited-company' },
 ];
 
 const topNav = [
@@ -60,7 +69,10 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
             </div>
 
             {/* Desktop Menu */}
-            <div className="hidden md:flex items-center space-x-12 uppercase tracking-wider text-sm">
+            <div
+              className="hidden md:grid items-center px-4 py-2 bg-white rounded-lg"
+              style={{ gridAutoFlow: 'column', gridGap: '1rem', gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))' }}
+            >
               {/* Start Business dropdown with current service links (JS-controlled for stable clicks) */}
               <div
                 ref={startContainerRef}
@@ -103,28 +115,47 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                     }
                     setIsStartOpen((s) => !s);
                   }}
-                  className="inline-flex items-center gap-2 px-1 pt-1 text-sm font-medium text-gray-700 hover:text-orange-600 transition-colors"
+                  className="inline-flex items-center gap-2 px-3 py-2 text-base font-medium text-gray-700 hover:text-orange-600 transition-colors rounded whitespace-nowrap"
                 >
                   <span>Start Business</span>
                   <ChevronDown className="w-4 h-4 text-gray-500" />
                 </button>
 
                 <div
-                  className={`absolute left-0 mt-3 w-52 bg-white ring-1 ring-black/5 shadow-lg rounded-md py-2 transition-transform origin-top ${
+                  className={`absolute left-0 mt-3 w-96 bg-white ring-1 ring-black/5 shadow-lg rounded-md py-3 transition-transform origin-top ${
                     isStartOpen ? 'scale-100 opacity-100' : 'scale-95 opacity-0 pointer-events-none'
                   }`}
                   style={{ transformOrigin: 'top' }}
                 >
-                  {startBusinessItems.map((item) => (
-                    <Link
-                      key={item.path}
-                      to={item.path}
-                      onClick={() => setIsStartOpen(false)}
-                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
-                    >
-                      {item.label}
-                    </Link>
-                  ))}
+                  <div className="px-3">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-1">
+                        {startBusinessCompaniesLeft.map((item) => (
+                          <Link
+                            key={item.path}
+                            to={item.path}
+                            onClick={() => setIsStartOpen(false)}
+                            className="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                          >
+                            {item.label}
+                          </Link>
+                        ))}
+                      </div>
+
+                      <div className="space-y-1 border-l border-gray-100 pl-4">
+                        {startBusinessCompaniesRight.map((item) => (
+                          <Link
+                            key={item.path}
+                            to={item.path}
+                            onClick={() => setIsStartOpen(false)}
+                            className="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                          >
+                            {item.label}
+                          </Link>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
 
@@ -132,7 +163,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                 <Link
                   key={item.path}
                   to={item.path || '#'}
-                  className={`inline-flex items-center px-1 pt-1 text-sm font-medium transition-colors duration-200 ${
+                  className={`inline-flex items-center px-3 py-2 text-base font-medium transition-colors duration-200 rounded whitespace-nowrap ${
                     item.path && isActive(item.path)
                       ? 'text-gray-900'
                       : 'text-gray-500 hover:text-orange-600'
@@ -141,6 +172,17 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                   {item.label}
                 </Link>
               ))}
+
+              <Link
+                to="/contact"
+                className={`inline-flex items-center px-3 py-2 text-base font-medium transition-colors duration-200 rounded whitespace-nowrap ${
+                  isActive('/contact')
+                    ? 'text-gray-900'
+                    : 'text-gray-500 hover:text-orange-600'
+                }`}
+              >
+                Contact Us
+              </Link>
 
               <Link to="/contact" className="bg-orange-600 hover:bg-orange-700 text-white px-5 py-2.5 rounded-md text-sm font-bold transition-colors shadow-sm">
                 Consult Expert
@@ -172,7 +214,8 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                 <details className="group">
                   <summary className="list-none cursor-pointer py-2 text-base font-medium text-gray-700">Start Business</summary>
                   <div className="mt-1 space-y-1">
-                    {startBusinessItems.map((item) => (
+                    {/* Company-related items for mobile (left + right lists) */}
+                    {[...startBusinessCompaniesLeft, ...startBusinessCompaniesRight].map((item) => (
                       <Link
                         key={item.path}
                         to={item.path}
@@ -240,35 +283,54 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
             
             <div>
               <h3 className="text-sm font-bold text-orange-500 uppercase tracking-wider mb-4">Services</h3>
-              <ul className="space-y-3">
-                {startBusinessItems.map((item) => (
-                  <li key={item.path}>
-                    <Link to={item.path} className="text-blue-100 hover:text-white transition-colors text-sm">
-                      {item.label}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-3 gap-x-6">
+                <ul className="space-y-3">
+                  {[...startBusinessCompaniesLeft, ...startBusinessCompaniesRight].map((item) => (
+                    <li key={item.path}>
+                      <Link to={item.path} className="text-blue-100 hover:text-white transition-colors text-sm">
+                        {item.label}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+                <ul className="space-y-3">
+                  <li>
+                    <Link to="/protect-business" className="text-blue-100 hover:text-white transition-colors text-sm">
+                      Protect Business
                     </Link>
                   </li>
-                ))}
-              </ul>
+                  <li>
+                    <Link to="/manage-business" className="text-blue-100 hover:text-white transition-colors text-sm">
+                      Manage Business
+                    </Link>
+                  </li>
+                  <li>
+                    <Link to="/grow-business" className="text-blue-100 hover:text-white transition-colors text-sm">
+                      Grow Business
+                    </Link>
+                  </li>
+                </ul>
+              </div>
             </div>
 
             <div>
               <h3 className="text-sm font-bold text-orange-500 uppercase tracking-wider mb-4">Contact Us</h3>
               <ul className="space-y-3">
                 <li className="flex items-center gap-3 text-blue-100 text-sm">
-                  <Phone className="h-4 w-4 text-orange-500" /> +91 98765 43210
+                  <Phone className="h-4 w-4 text-orange-500" /> +91 6204270990 
                 </li>
                 <li className="flex items-center gap-3 text-blue-100 text-sm">
-                  <Mail className="h-4 w-4 text-orange-500" /> support@legalsthal.com
+                  <Mail className="h-4 w-4 text-orange-500" /> info@legalsthal.in
                 </li>
                 <li className="flex items-center gap-3 text-blue-100 text-sm">
-                  <MapPin className="h-4 w-4 text-orange-500" /> Connaught Place, New Delhi, India
+                  <MapPin className="h-4 w-4 text-orange-500" /> Gurugram, Haryana 122003
                 </li>
               </ul>
             </div>
           </div>
           <div className="mt-8 border-t border-blue-800 pt-8 text-center">
             <p className="text-blue-300 text-xs">
-              &copy; {new Date().getFullYear()} Legal Sthal. All rights reserved.
+              &copy; {new Date().getFullYear()} Legal Sthal. All rights reserved. Design & Developed by Gen SkyTech.
             </p>
           </div>
         </div>

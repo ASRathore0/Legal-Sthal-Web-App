@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { InquiryData } from '../types';
+import { submitToGoogleSheet } from '../services/formService';
 import { Send, Loader2, CheckCircle } from 'lucide-react';
 
 interface InquiryFormProps {
@@ -23,27 +24,22 @@ const InquiryForm: React.FC<InquiryFormProps> = ({ serviceType, title = "Get a F
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
 
-    // Simulate API call
-    setTimeout(() => {
-      console.log('Form submitted:', formData);
+    const payload = {
+      ...formData,
+      submittedAt: new Date().toISOString(),
+      source: 'GeneralInquiry' as const
+    };
 
-      // Save submission to localStorage for later export
-      try {
-        const entry = { ...formData, submittedAt: new Date().toISOString() };
-        const existing = JSON.parse(localStorage.getItem('inquiries') || '[]');
-        existing.push(entry);
-        localStorage.setItem('inquiries', JSON.stringify(existing));
-      } catch (err) {
-        console.error('Failed to save inquiry to localStorage', err);
-      }
+    const success = await submitToGoogleSheet(payload);
+    
+    setIsSubmitting(false);
 
-      setIsSubmitting(false);
+    if (success) {
       setIsSuccess(true);
-
       setFormData({
         name: '',
         email: '',
@@ -51,7 +47,7 @@ const InquiryForm: React.FC<InquiryFormProps> = ({ serviceType, title = "Get a F
         message: '',
         serviceType: serviceType,
       });
-    }, 1500);
+    }
   };
 
   if (isSuccess) {
@@ -104,7 +100,7 @@ const InquiryForm: React.FC<InquiryFormProps> = ({ serviceType, title = "Get a F
             value={formData.phone}
             onChange={handleChange}
             className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500 sm:text-sm border p-2.5"
-            placeholder="+91 98765 43210"
+            placeholder="+91 6204270990 "
           />
         </div>
 

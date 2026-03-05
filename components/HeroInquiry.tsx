@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { InquiryData } from '../types';
+import { submitToGoogleSheet } from '../services/formService';
 import { Send, Loader2, CheckCircle } from 'lucide-react';
 
 const serviceOptions = [
@@ -22,7 +23,7 @@ const HeroInquiry: React.FC = () => {
     serviceType: 'Looking For*',
   });
   const [title, setTitle] = useState('Mr.');
-  const [city, setCity] = useState('Chandigarh');
+  const [city, setCity] = useState('Gurugram');
   const [whatsapp, setWhatsapp] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
@@ -32,24 +33,27 @@ const HeroInquiry: React.FC = () => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
 
-    setTimeout(() => {
-      const payload = { ...formData, submittedAt: new Date().toISOString(), title, city, whatsapp };
-      try {
-        const existing = JSON.parse(localStorage.getItem('inquiries') || '[]');
-        existing.push(payload);
-        localStorage.setItem('inquiries', JSON.stringify(existing));
-      } catch (err) {
-        console.error(err);
-      }
+    const payload = { 
+      ...formData, 
+      title, 
+      city, 
+      whatsapp,
+      submittedAt: new Date().toISOString(),
+      source: 'HeroInquiry' as const
+    };
 
-      setIsSubmitting(false);
+    const success = await submitToGoogleSheet(payload);
+
+    setIsSubmitting(false);
+    
+    if (success) {
       setIsSuccess(true);
       setFormData({ name: '', email: '', phone: '', message: '', serviceType: 'Looking For*' });
-    }, 1200);
+    }
   };
 
   if (isSuccess) {
@@ -77,7 +81,7 @@ const HeroInquiry: React.FC = () => {
           <select
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            className="sm:w-20 w-full h-10 bg-white rounded-md px-2 border border-gray-200 shadow-sm text-sm text-gray-800"
+            className="sm:w-20 w-full h-10 bg-white rounded-md px-2 border border-gray-200 shadow-sm text-xs text-gray-800"
           >
             <option>Mr.</option>
             <option>Ms.</option>
@@ -91,7 +95,7 @@ const HeroInquiry: React.FC = () => {
             onChange={handleChange}
             placeholder="Full Name"
             required
-            className="sm:flex-1 w-full bg-white rounded-md px-3 h-10 border border-gray-200 shadow-sm text-gray-700 placeholder-gray-400"
+            className="sm:flex-1 w-full bg-white rounded-md px-3 h-10 border border-gray-200 shadow-sm text-xs text-gray-700 placeholder-gray-400 placeholder:text-xs"
           />
         </div>
 
@@ -101,7 +105,7 @@ const HeroInquiry: React.FC = () => {
           value={formData.email}
           onChange={handleChange}
           placeholder="E-mail Id"
-          className="w-full bg-white rounded-md px-3 h-10 border border-gray-200 shadow-sm text-gray-700 placeholder-gray-400"
+          className="w-full bg-white rounded-md px-3 h-10 border border-gray-200 shadow-sm text-xs text-gray-700 placeholder-gray-400 placeholder:text-xs"
         />
 
         <input
@@ -110,7 +114,7 @@ const HeroInquiry: React.FC = () => {
           value={formData.phone}
           onChange={handleChange}
           placeholder="Mobile"
-          className="w-full bg-white rounded-md px-3 h-10 border border-gray-200 shadow-sm text-gray-700 placeholder-gray-400"
+          className="w-full bg-white rounded-md px-3 h-10 border border-gray-200 shadow-sm text-xs text-gray-700 placeholder-gray-400 placeholder:text-xs"
         />
 
         <input
@@ -119,7 +123,7 @@ const HeroInquiry: React.FC = () => {
           value={city}
           onChange={(e) => setCity(e.target.value)}
           placeholder="Ghaziabad"
-          className="w-full bg-white rounded-md px-3 h-10 border border-gray-200 shadow-sm text-gray-700 placeholder-gray-400"
+          className="w-full bg-white rounded-md px-3 h-10 border border-gray-200 shadow-sm text-xs text-gray-700 placeholder-gray-400 placeholder:text-xs"
         />
 
         <div className="relative">
@@ -127,7 +131,7 @@ const HeroInquiry: React.FC = () => {
             name="serviceType"
             value={formData.serviceType}
             onChange={handleChange}
-            className="w-full bg-white rounded-md px-3 h-10 border border-gray-200 shadow-sm text-gray-700 appearance-none"
+            className="w-full bg-white rounded-md px-3 h-10 border border-gray-200 shadow-sm text-xs text-gray-700 appearance-none"
           >
             <option value="Looking For*">Looking For*</option>
             {serviceOptions.map((s) => (

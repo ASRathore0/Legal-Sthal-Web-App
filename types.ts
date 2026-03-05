@@ -10,6 +10,9 @@ export enum ServiceType {
   SOLE_PROPRIETORSHIP = 'Sole Proprietorship',
   PARTNERSHIP = 'Partnership Firm',
   STARTUP_INDIA = 'Startup India',
+  PROTECT_BUSINESS = 'Protect Business',
+  MANAGE_BUSINESS = 'Manage Business',
+  GROW_BUSINESS = 'Grow Business',
   GENERAL = 'General Inquiry'
 }
 
