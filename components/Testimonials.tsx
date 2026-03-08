@@ -1,41 +1,15 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { TestimonialItem } from '../types';
+import { getStorageUrl } from '../services/cmsService';
 
-const testimonials = [
-  {
-    quote: 'Legal स्थल made our company registration effortless. Their team handled every detail quickly and professionally — we had everything sorted within days.',
-    name: 'Rohit Sharma',
-    role: 'Founder, TechBazaar',
-    img: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=256&q=80'
-  },
-  {
-    quote: 'Excellent guidance and transparent pricing. The consultants were responsive and helped me choose the right structure for my business.',
-    name: 'Rishu Rai',
-    role: 'Founder, GenSky Tech',
-    img: 'https://genskytech.com/assets/images/team/team-image1.jpg'
-  },
-  {
-    quote: 'Fast, clear, and reliable. The process was completely online and saved us both time and money — highly recommended.',
-    name: 'Amit Singh',
-    role: 'Founder, BookingYard',
-    img: 'https://media.licdn.com/dms/image/v2/D5603AQHJ7Cyd61k8mg/profile-displayphoto-shrink_400_400/profile-displayphoto-shrink_400_400/0/1710703266461?e=1765411200&v=beta&t=bjrpaeR4DlI137zwZfBNM1sS0CMPET1OxSLunUqK1pk'
-  },
-  {
-    quote: 'The team provided excellent post-registration support and answered all questions patiently. Great value for money.',
-    name: 'Vikram Patel',
-    role: 'Founder, FinEdge',
-    img: 'https://images.unsplash.com/photo-1548142813-1f9bd8e3b2a6?auto=format&fit=crop&w=256&q=80'
-  },
-  {
-    quote: 'A very smooth digital experience. Documentation and timelines were clear and the advisors were knowledgeable.',
-    name: 'Shruti Rao',
-    role: 'Co-founder, HomeBite',
-    img: 'https://images.unsplash.com/photo-1541532713592-79a0317b6b77?auto=format&fit=crop&w=256&q=80'
-  }
-];
+interface TestimonialsProps {
+  data?: TestimonialItem[];
+}
 
 const AUTOPLAY_INTERVAL = 4000;
 
 const getInitials = (name: string) => {
+  if (!name) return '??';
   const parts = name.trim().split(/\s+/);
   if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
   return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
@@ -49,22 +23,26 @@ const getPlaceholderDataUri = (name: string) => {
   return `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
 };
 
-const Testimonials: React.FC = () => {
+const Testimonials: React.FC<TestimonialsProps> = ({ data = [] }) => {
   const [index, setIndex] = useState(0);
   const timerRef = useRef<number | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
 
+  const safeData = data.length > 0 ? data : [];
+
   useEffect(() => {
     // Start autoplay once on mount and clean up on unmount
-    startAutoplay();
+    if (safeData.length > 0) {
+      startAutoplay();
+    }
     return stopAutoplay;
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [safeData.length]);
 
   const startAutoplay = () => {
     stopAutoplay();
     timerRef.current = window.setInterval(() => {
-      setIndex((i) => (i + 1) % testimonials.length);
+      setIndex((i) => (i + 1) % safeData.length);
     }, AUTOPLAY_INTERVAL);
   };
 
@@ -76,8 +54,10 @@ const Testimonials: React.FC = () => {
   };
 
   const goTo = (i: number) => {
-    setIndex(i % testimonials.length);
+    setIndex(i % safeData.length);
   };
+
+  if (safeData.length === 0) return null;
 
   return (
     <section className="py-16 bg-gray-50">
@@ -96,34 +76,34 @@ const Testimonials: React.FC = () => {
         >
           <div
             className="flex transition-transform duration-700 ease-in-out"
-            style={{ width: `${testimonials.length * 100}%`, transform: `translateX(-${index * (100 / testimonials.length)}%)` }}
+            style={{ width: `${safeData.length * 100}%`, transform: `translateX(-${index * (100 / safeData.length)}%)` }}
           >
-            {testimonials.map((t, i) => (
+            {safeData.map((t, i) => (
               <div
                 key={i}
                 className="flex-shrink-0 p-6 sm:p-10 bg-white border border-gray-100"
-                style={{ width: `${100 / testimonials.length}%` }}
+                style={{ width: `${100 / safeData.length}%` }}
               >
                 <div className="max-w-3xl mx-auto flex flex-col md:flex-row items-start md:items-center gap-6">
                   <div className="flex-shrink-0">
                     <img
-                      src={t.img}
-                      alt={t.name}
+                      src={getStorageUrl(t.image) || getPlaceholderDataUri(t.author)}
+                      alt={t.author}
                       className="w-16 h-16 rounded-full object-cover shadow"
                       loading="lazy"
                       onError={(e) => {
                         const target = e.currentTarget as HTMLImageElement;
                         if (!target.dataset.fallback) {
                           target.dataset.fallback = '1';
-                          target.src = getPlaceholderDataUri(t.name);
+                          target.src = getPlaceholderDataUri(t.author);
                         }
                       }}
                     />
                   </div>
                   <div>
                     <p className="text-gray-700 text-lg leading-relaxed mb-4">“{t.quote}”</p>
-                    <p className="font-bold text-gray-900">{t.name}</p>
-                    <p className="text-sm text-gray-500">{t.role}</p>
+                    <p className="font-bold text-gray-900">{t.author}</p>
+                    <p className="text-sm text-gray-500">{t.role} {t.company && `, ${t.company}`}</p>
                   </div>
                 </div>
               </div>
@@ -132,7 +112,7 @@ const Testimonials: React.FC = () => {
 
           {/* Indicators */}
           <div className="absolute left-1/2 transform -translate-x-1/2 bottom-4 flex items-center gap-2">
-            {testimonials.map((_, i) => (
+            {safeData.map((_, i) => (
               <button
                 key={i}
                 onClick={() => goTo(i)}
@@ -146,5 +126,6 @@ const Testimonials: React.FC = () => {
     </section>
   );
 };
+
 
 export default Testimonials;

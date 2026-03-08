@@ -1,18 +1,33 @@
 import React from 'react';
+import { useCMS } from '../context/CMSContext';
 import InquiryForm from '../components/InquiryForm';
-import { Mail, Phone, MapPin, Shield } from 'lucide-react';
+import { Mail, Phone, MapPin, Shield, Loader2 } from 'lucide-react';
 import AdminAuth from '../components/AdminAuth';
 import { ServiceType } from '../types';
 
 const Contact: React.FC = () => {
+  const { globalContent, loading } = useCMS();
+
+  if (loading && !globalContent) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <Loader2 className="animate-spin h-8 w-8 text-orange-600" />
+      </div>
+    );
+  }
+
+  const { footer_phone, footer_email, footer_address } = globalContent || {};
+
   return (
     <div className="bg-gray-50 min-h-screen">
       <div className="bg-blue-900 text-white py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h1 className="text-3xl md:text-4xl font-bold mb-4">Contact Us</h1>
-          <div className="flex items-center gap-4">
-            <p className="text-blue-100 text-lg max-w-3xl">We are here to help you with all your business registration and legal compliance needs.</p>
-            <AdminAuth />
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+             <div>
+                <h1 className="text-3xl md:text-4xl font-bold mb-4">Contact Us</h1>
+                <p className="text-blue-100 text-lg max-w-3xl">We are here to help you with all your business registration and legal compliance needs.</p>
+             </div>
+             <AdminAuth />
           </div>
         </div>
       </div>
@@ -30,7 +45,7 @@ const Contact: React.FC = () => {
                   </div>
                   <div>
                     <h3 className="font-semibold text-gray-900">Phone Number</h3>
-                    <p className="text-gray-600">+91 6204270990 </p>
+                    <p className="text-gray-600">{footer_phone || '+91 8448866753'}</p>
                     <p className="text-xs text-gray-400 mt-1">Mon-Sat 9am to 7pm</p>
                   </div>
                 </div>
@@ -41,7 +56,7 @@ const Contact: React.FC = () => {
                   </div>
                   <div>
                     <h3 className="font-semibold text-gray-900">Email Address</h3>
-                    <p className="text-gray-600">info@legalsthal.in</p>
+                    <p className="text-gray-600">{footer_email || 'support@legalsthal.in'}</p>
                    </div>
                 </div>
 
@@ -51,9 +66,8 @@ const Contact: React.FC = () => {
                   </div>
                   <div>
                     <h3 className="font-semibold text-gray-900">Office Address</h3>
-                    <p className="text-gray-600">
-                      4th Floor, Plot 93, Sector 44,<br />
-                      Gurugram, Haryana 122003
+                    <p className="text-gray-600 whitespace-pre-line">
+                      {footer_address || '4th Floor, Plot 93, Sector 44,\nGurugram, Haryana 122003'}
                     </p>
                     <p className="text-xs text-gray-400 mt-2">Open Mon-Sat 9am–6pm</p>
                     <div className="mt-4 w-full h-48 rounded-md overflow-hidden border border-gray-100">

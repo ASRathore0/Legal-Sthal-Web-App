@@ -1,25 +1,52 @@
 import React, { useState } from 'react';
+import { useCMS } from '../context/CMSContext';
+import { submitToGoogleSheet, submitToCRM, FormSubmissionData } from '../services/formService';
+import { Loader2, CheckCircle } from 'lucide-react';
 import { InquiryData } from '../types';
-import { submitToGoogleSheet } from '../services/formService';
-import { Send, Loader2, CheckCircle } from 'lucide-react';
 
 interface InquiryFormProps {
   serviceType: string;
-  title?: string;
+  title?: React.ReactNode;
+  isHero?: boolean;
 }
 
-const InquiryForm: React.FC<InquiryFormProps> = ({ serviceType, title = "Get a Free Consultation" }) => {
-  const [formData, setFormData] = useState<InquiryData>({
+const InquiryForm: React.FC<InquiryFormProps> = ({ serviceType, title, isHero = false }) => {
+  const { globalContent } = useCMS();
+  // Generate service options dynamically
+  const dynamicServices = globalContent?.our_services?.map(s => s.title);
+  const serviceOptions = dynamicServices && dynamicServices.length > 0 ? dynamicServices : [
+    'Sole Proprietorship',
+    'Partnership Firm', 
+    'LLP Registration',
+    'Private Limited Company',
+    'One Person Company',
+    'GST Registration',
+    'Startup India Registration',
+    'Trademark Registration'
+  ];
+
+  const [formData, setFormData] = useState({
     name: '',
     email: '',
     phone: '',
+    serviceType: serviceType || '', 
     message: '',
-    serviceType: serviceType,
+    city: 'Gurugram',
+    title: 'Mr.'
   });
+  
+  const [whatsapp, setWhatsapp] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isSuccess, setIsSuccess] = useState(false);
+  const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  // Sync prop changes to form state
+  React.useEffect(() => {
+    if (serviceType) {
+      setFormData(prev => ({ ...prev, serviceType: serviceType }));
+    }
+  }, [serviceType]);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
   };
@@ -27,125 +54,183 @@ const InquiryForm: React.FC<InquiryFormProps> = ({ serviceType, title = "Get a F
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
-
-    const payload = {
-      ...formData,
-      submittedAt: new Date().toISOString(),
-      source: 'GeneralInquiry' as const
-    };
-
-    const success = await submitToGoogleSheet(payload);
     
-    setIsSubmitting(false);
+    try {
+        const submissionData: FormSubmissionData = {
+            name: formData.title + ' ' + formData.name,
+            email: formData.email,
+            phone: formData.phone,
+            message: formData.message || 'Quick Inquiry from ' + (isHero ? 'Hero Form' : 'Page Form'), 
+            serviceType: formData.serviceType || 'General Inquiry',
+            title: formData.title,
+            city: formData.city,
+            whatsapp: whatsapp,
+            submittedAt: new Date().toISOString(),
+            source: isHero ? 'HeroInquiry' : (title ? 'ContactForm' : 'GeneralInquiry')
+        };
 
-    if (success) {
-      setIsSuccess(true);
-      setFormData({
-        name: '',
-        email: '',
-        phone: '',
-        message: '',
-        serviceType: serviceType,
-      });
+        // Submit to both CRM and Google Sheet in parallel
+        await Promise.all([
+          submitToCRM(submissionData),
+          submitToGoogleSheet(submissionData)
+        ]);
+
+        setSubmitStatus('success');
+        setFormData({
+            name: '',
+            email: '',
+            phone: '',
+            serviceType: serviceType || '',
+            message: '',
+            city: 'Gurugram',
+            title: 'Mr.'
+        });
+    } catch (error) {
+        setSubmitStatus('error');
+    } finally {
+        setIsSubmitting(false);
     }
   };
 
-  if (isSuccess) {
+  if (submitStatus === 'success') {
     return (
-      <div className="bg-white p-8 rounded-xl shadow-lg border border-orange-100 text-center">
-        <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-green-100 mb-4">
-          <CheckCircle className="h-6 w-6 text-green-600" />
+      <div className="bg-white p-8 rounded-xl shadow-lg border border-orange-100 text-center h-full flex flex-col items-center justify-center">
+        <div className="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-green-100 mb-4">
+          <CheckCircle className="h-8 w-8 text-green-600" />
         </div>
-        <h3 className="text-lg font-medium text-gray-900">Inquiry Received!</h3>
-        <p className="mt-2 text-sm text-gray-500">
-          Thank you for contacting us. Our legal expert will get back to you within 24 hours.
-        </p>
+        <h3 className="text-xl font-bold text-gray-900 mb-2">Thank You!</h3>
+        <p className="text-gray-600 mb-6">We have received your inquiry. Our team will contact you shortly.</p>
         <button 
-          onClick={() => setIsSuccess(false)}
-          className="mt-6 text-orange-600 hover:text-orange-700 text-sm font-bold"
+          onClick={() => setSubmitStatus('idle')}
+          className="text-orange-600 font-semibold hover:text-orange-700 underline"
         >
-          Send another inquiry
+          Submit another inquiry
         </button>
       </div>
     );
   }
 
   return (
-    <div className="bg-white p-6 md:p-8 rounded-xl shadow-lg border border-blue-50">
-      <h3 className="text-xl font-bold text-blue-900 mb-2">{title}</h3>
-      <p className="text-gray-500 text-sm mb-6">Fill out the form below to get expert assistance for {serviceType}.</p>
-      
+    <div className={`bg-white rounded-xl shadow-xl p-5 ${isHero ? 'border-t-4 border-orange-500' : 'border border-gray-100'}`}>
+      <div className="text-center mb-4">
+        {title ? (
+            <div className="text-xl font-bold text-gray-900 leading-tight">{title}</div>
+        ) : (
+            <>
+                <h3 className="text-xl font-bold text-gray-900 leading-tight">Get Quote Instantly in a Minute</h3>
+                <div className="h-1 w-12 bg-orange-500 mx-auto mt-2 rounded-full"></div>
+            </>
+        )}
+      </div>
       <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <label htmlFor="name" className="block text-sm font-medium text-gray-700">Full Name</label>
-          <input
-            type="text"
-            id="name"
-            name="name"
-            required
-            value={formData.name}
-            onChange={handleChange}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500 sm:text-sm border p-2.5"
-            placeholder="John Doe"
-          />
+        {submitStatus === 'error' && (
+            <div className="bg-red-50 text-red-600 p-3 rounded-md text-sm text-center border border-red-100">
+                Something went wrong. Please try again or call us directly.
+            </div>
+        )}
+        <div className="grid grid-cols-4 gap-2">
+            <div className="col-span-1">
+                <select
+                  name="title"
+                  value={formData.title}
+                  onChange={handleChange}
+                  className="w-full px-2 py-2.5 rounded-md border border-gray-300 focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition-all text-sm bg-gray-50 text-gray-900"
+                  style={{ backgroundImage: 'none', textAlign: 'center' }} 
+                >
+                    <option value="Mr.">Mr.</option>
+                    <option value="Ms.">Ms.</option>
+                    <option value="Mrs.">Mrs.</option>
+                </select>
+            </div>
+            <div className="col-span-3">
+              <input
+                  type="text"
+                  name="name"
+                  value={formData.name}
+                  onChange={handleChange}
+                  placeholder="Full Name"
+                  required
+                  className="w-full px-3 py-2.5 rounded-md border border-gray-300 focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition-all placeholder-gray-500 text-gray-900 text-sm font-medium"
+              />
+            </div>
         </div>
-        
-        <div>
-          <label htmlFor="phone" className="block text-sm font-medium text-gray-700">Phone Number</label>
+
+        <input
+          type="email"
+          name="email"
+          value={formData.email}
+          onChange={handleChange}
+          placeholder="E-mail Id"
+          required
+          className="w-full px-3 py-2.5 rounded-md border border-gray-300 focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition-all placeholder-gray-500 text-gray-900 text-sm font-medium"
+        />
+
+        <div className="relative">
           <input
             type="tel"
-            id="phone"
             name="phone"
-            required
             value={formData.phone}
             onChange={handleChange}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500 sm:text-sm border p-2.5"
-            placeholder="+91 6204270990 "
-          />
-        </div>
-
-        <div>
-          <label htmlFor="email" className="block text-sm font-medium text-gray-700">Email Address</label>
-          <input
-            type="email"
-            id="email"
-            name="email"
+            placeholder="Mobile"
             required
-            value={formData.email}
-            onChange={handleChange}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500 sm:text-sm border p-2.5"
-            placeholder="john@example.com"
+            pattern="[0-9]{10}"
+            title="Please enter a valid 10-digit mobile number"
+            className="w-full px-3 py-2.5 rounded-md border border-gray-300 focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition-all placeholder-gray-500 text-gray-900 text-sm font-medium"
           />
         </div>
 
-        <div>
-          <label htmlFor="message" className="block text-sm font-medium text-gray-700">Business Details (Optional)</label>
-          <textarea
-            id="message"
-            name="message"
-            rows={3}
-            value={formData.message}
+        <input
+            type="text"
+            name="city"
+            value={formData.city}
             onChange={handleChange}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500 sm:text-sm border p-2.5"
-            placeholder="Tell us briefly about your business..."
-          />
+            placeholder="City"
+            className="w-full px-3 py-2.5 rounded-md border border-gray-300 focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition-all placeholder-gray-500 text-gray-900 text-sm font-medium"
+        />
+
+        <select
+          name="serviceType"
+          value={formData.serviceType}
+          onChange={handleChange}
+          required
+          className="w-full px-3 py-2.5 rounded-md border border-gray-300 focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition-all text-gray-900 bg-white text-sm font-medium"
+        >
+          <option value="" disabled className="text-gray-400">Looking For*</option>
+          {serviceOptions.map((option, index) => (
+            <option key={index} value={option}>
+              {option}
+            </option>
+          ))}
+        </select>
+
+        <div className="flex items-center gap-2 py-0.5">
+            <div className="relative inline-block w-9 h-5 align-middle select-none transition duration-200 ease-in flex-shrink-0">
+                <input 
+                    type="checkbox" 
+                    name="whatsapp" 
+                    id="whatsapp-toggle" 
+                    checked={whatsapp}
+                    onChange={(e) => setWhatsapp(e.target.checked)}
+                    className="toggle-checkbox absolute block w-5 h-5 rounded-full bg-white border-4 appearance-none cursor-pointer translate-x-0 checked:translate-x-4 checked:border-green-500 transition-transform duration-200 ease-in-out shadow-sm z-10"
+                />
+                <label htmlFor="whatsapp-toggle" className={`toggle-label block overflow-hidden h-5 rounded-full cursor-pointer ${whatsapp ? 'bg-green-500' : 'bg-gray-300'}`}></label>
+            </div>
+            <label htmlFor="whatsapp-toggle" className="text-sm font-medium text-gray-800 cursor-pointer">
+                Get updates through Whatsapp
+            </label>
         </div>
 
         <button
           type="submit"
           disabled={isSubmitting}
-          className="w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-bold text-white bg-orange-600 hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          className="w-full bg-orange-500 text-white font-bold py-3 px-6 rounded-md hover:bg-orange-600 transition-colors uppercase shadow-md mt-1 text-sm"
         >
           {isSubmitting ? (
-            <>
-              <Loader2 className="animate-spin -ml-1 mr-2 h-4 w-4" />
-              Submitting...
-            </>
+            <span className="flex items-center justify-center gap-2">
+              <Loader2 className="animate-spin h-4 w-4" /> Processing...
+            </span>
           ) : (
-            <>
-              <Send className="-ml-1 mr-2 h-4 w-4" />
-              Submit Inquiry
-            </>
+            "GET STARTED NOW"
           )}
         </button>
       </form>
