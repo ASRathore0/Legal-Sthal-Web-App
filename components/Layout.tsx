@@ -40,7 +40,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
               <Link to="/" className="flex-shrink-0 flex items-center gap-3 group">
                 {/* Logo Icon Composite */}
                 {globalContent?.header_logo ? (
-                     <img src={getStorageUrl(globalContent.header_logo)} alt="Logo" className="h-10 w-auto" />
+                     <img src={getStorageUrl(globalContent.header_logo)} alt="Logo" className="h-12 w-auto" />
                 ) : (
                     <div className="relative w-10 h-10 flex items-center justify-center">
                     <Shield className="w-10 h-10 text-blue-900 absolute" strokeWidth={1.5} />

@@ -24,8 +24,8 @@ const DynamicPage: React.FC = () => {
         } else {
           setError('Page not found');
         }
-      } catch (err) {
-        setError('Failed to load page content');
+      } catch (err: any) {
+        setError(err.message || 'Failed to load page content');
       } finally {
         setLoading(false);
       }
@@ -38,6 +38,22 @@ const DynamicPage: React.FC = () => {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <Loader2 className="animate-spin h-8 w-8 text-orange-600" />
+      </div>
+    );
+  }
+
+  if (error && error.includes('VITE_API_BASE_URL is missing')) {
+    return (
+      <div className="min-h-[60vh] flex flex-col items-center justify-center bg-yellow-50 p-6 text-center">
+        <div className="bg-white p-8 rounded-lg shadow-md max-w-2xl border-l-4 border-yellow-500">
+          <h2 className="text-2xl font-bold text-yellow-700 mb-4">Configuration Required</h2>
+          <p className="text-gray-700 text-lg mb-4">
+            {error}
+          </p>
+          <p className="text-gray-500">
+            Please setup your <code className="bg-gray-100 px-1 py-0.5 rounded">.env</code> file with the correct backend URL.
+          </p>
+        </div>
       </div>
     );
   }
@@ -85,9 +101,9 @@ const DynamicPage: React.FC = () => {
 
                {/* "Also Get" Box inside Left Content */}
                <div className="bg-white/5 border border-blue-400/30 rounded-xl overflow-hidden backdrop-blur-sm max-w-3xl"> 
-                  <div className="bg-white py-2 px-6">
-                      <h4 className="text-center md:text-left text-[#1e3a8a] font-bold uppercase tracking-wide text-sm">Also Get</h4>
-                  </div>
+                    <div className="bg-white py-2 px-6 text-center">
+                      <h4 className="text-[#1e3a8a] font-bold uppercase tracking-wide text-sm">Also Get</h4>
+                    </div>
                   <div className="p-6">
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
                         {pageData.also_get && pageData.also_get.length > 0 ? (

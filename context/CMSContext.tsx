@@ -20,9 +20,9 @@ export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       try {
         const content = await getGlobalContent();
         setGlobalContent(content);
-      } catch (err) {
-        console.warn('API lookup failed, using default fallback content.');
-        setError('Failed to load global content');
+      } catch (err: any) {
+        console.warn('API lookup failed, using default fallback content.');     
+        setError(err.message || 'Failed to load global content');
       } finally {
         setLoading(false);
       }

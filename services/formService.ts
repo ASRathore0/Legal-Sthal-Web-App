@@ -11,8 +11,10 @@ export interface FormSubmissionData {
   source: 'HeroInquiry' | 'GeneralInquiry' | 'ContactForm';
 }
 
-// You need to replace this URL with your CRM API Endpoint
-const CRM_API_URL = 'https://indigo-turkey-648648.hostingersite.com/api/leads'; 
+// Ensure the base URL is provided
+const BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
+const CRM_API_URL = BASE_URL ? `${BASE_URL.replace(/\/+$/, '')}/api/leads` : '';
 
 // You need to replace this URL with your deployed Google Apps Script Web App URL
 const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbykCHtqs_z6Bu20F6_aup68jXN5Lihby3EMWw_J0K-FtpwwadFzzKFS5liQYx9dVB6W/exec';

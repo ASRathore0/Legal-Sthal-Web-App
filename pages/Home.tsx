@@ -8,7 +8,7 @@ import Testimonials from '../components/Testimonials';
 import TrustStrip from '../components/TrustStrip';
 
 const Home: React.FC = () => {
-  const { globalContent, loading } = useCMS();
+  const { globalContent, loading, error } = useCMS();
 
   if (loading && !globalContent) {
     return (
@@ -17,6 +17,22 @@ const Home: React.FC = () => {
             <Loader2 className="animate-spin h-8 w-8 text-orange-600" />
             <p className="text-gray-500 text-sm">Loading content...</p>
           </div>
+      </div>
+    );
+  }
+
+  if (error && error.includes('VITE_API_BASE_URL is missing')) {
+    return (
+      <div className="min-h-[60vh] flex flex-col items-center justify-center bg-yellow-50 p-6 text-center">
+        <div className="bg-white p-8 rounded-lg shadow-md max-w-2xl border-l-4 border-yellow-500">
+          <h2 className="text-2xl font-bold text-yellow-700 mb-4">Configuration Required</h2>
+          <p className="text-gray-700 text-lg mb-4">
+            {error}
+          </p>
+          <p className="text-gray-500">
+            Please rename your <code className="bg-gray-100 px-1 py-0.5 rounded">.env.example</code> to <code className="bg-gray-100 px-1 py-0.5 rounded">.env</code> and set the <code className="bg-gray-100 px-1 py-0.5 rounded">VITE_API_BASE_URL</code> variable.
+          </p>
+        </div>
       </div>
     );
   }
